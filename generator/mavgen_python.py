@@ -755,6 +755,8 @@ class MAVLink(object):
 
                 # terminate any strings
                 for i in range(0, len(tlist)):
+                    if isinstance(tlist[i], (bytes, bytearray)):
+                        tlist[i] = tlist[i].decode()
                     if isinstance(tlist[i], str):
                         tlist[i] = str(MAVString(tlist[i]))
                 t = tuple(tlist)
