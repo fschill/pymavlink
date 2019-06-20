@@ -1,0 +1,634 @@
+<?xml version='1.0'?>
+<mavlink>
+     <version>3</version>
+     <enums>
+          <enum name="MAV_AUTOPILOT">
+               <description>Micro air vehicle / autopilot classes. This identifies the individual model.</description>
+               <entry value="0" name="MAV_AUTOPILOT_GENERIC">
+                    <description>Generic autopilot, full support for everything</description>
+               </entry>
+          </enum>
+          <enum name="MAV_TYPE">
+               <entry value="0" name="MAV_TYPE_GENERIC">
+                    <description>Generic micro air vehicle.</description>
+               </entry>
+          </enum>
+          <enum name="FIRMWARE_VERSION_TYPE">
+              <description>These values define the type of firmware release.  These values indicate the first version or release of this type.  For example the first alpha release would be 64, the second would be 65.</description>
+              <entry value="0" name="FIRMWARE_VERSION_TYPE_DEV">
+                  <description>development release</description>
+              </entry>
+              <entry value="64" name="FIRMWARE_VERSION_TYPE_ALPHA">
+                  <description>alpha release</description>
+              </entry>
+              <entry value="128" name="FIRMWARE_VERSION_TYPE_BETA">
+                  <description>beta release</description>
+              </entry>
+              <entry value="192" name="FIRMWARE_VERSION_TYPE_RC">
+                  <description>release candidate</description>
+              </entry>
+              <entry value="255" name="FIRMWARE_VERSION_TYPE_OFFICIAL">
+                  <description>official stable release</description>
+              </entry>
+          </enum>
+          <!-- WARNING: MAV_ACTION Enum is no longer supported - has been removed. Please use MAV_CMD -->
+          <enum name="MAV_MODE_FLAG">
+                <description>These flags encode the MAV mode.</description>
+                <entry value="128" name="MAV_MODE_FLAG_SAFETY_ARMED">
+                     <description>0b10000000 MAV safety set to armed. Motors are enabled / running / can start. Ready to fly.</description>
+                </entry>
+                <entry value="64" name="MAV_MODE_FLAG_MANUAL_INPUT_ENABLED">
+                     <description>0b01000000 remote control input is enabled.</description>
+                </entry>
+                <entry value="32" name="MAV_MODE_FLAG_HIL_ENABLED">
+                      <description>0b00100000 hardware in the loop simulation. All motors / actuators are blocked, but internal software is full operational.</description>
+                </entry>
+                <entry value="16" name="MAV_MODE_FLAG_STABILIZE_ENABLED">
+                     <description>0b00010000 system stabilizes electronically its attitude (and optionally position). It needs however further control inputs to move around.</description>
+                </entry>
+                <entry value="8" name="MAV_MODE_FLAG_GUIDED_ENABLED">
+                     <description>0b00001000 guided mode enabled, system flies MISSIONs / mission items.</description>
+                </entry>
+                <entry value="4" name="MAV_MODE_FLAG_AUTO_ENABLED">
+                     <description>0b00000100 autonomous mode enabled, system finds its own goal positions. Guided flag can be set or not, depends on the actual implementation.</description>
+                </entry>
+                <entry value="2" name="MAV_MODE_FLAG_TEST_ENABLED">
+                     <description>0b00000010 system has a test mode enabled. This flag is intended for temporary system tests and should not be used for stable implementations.</description>
+                </entry>
+                <entry value="1" name="MAV_MODE_FLAG_CUSTOM_MODE_ENABLED">
+                     <description>0b00000001 Reserved for future use.</description>
+                </entry>
+          </enum>
+          <enum name="MAV_MODE_FLAG_DECODE_POSITION">
+               <description>These values encode the bit positions of the decode position. These values can be used to read the value of a flag bit by combining the base_mode variable with AND with the flag position value. The result will be either 0 or 1, depending on if the flag is set or not.</description>
+                <entry value="128" name="MAV_MODE_FLAG_DECODE_POSITION_SAFETY">
+                     <description>First bit:  10000000</description>
+                </entry>
+                <entry value="64" name="MAV_MODE_FLAG_DECODE_POSITION_MANUAL">
+                     <description>Second bit: 01000000</description>
+                </entry>
+                <entry value="32" name="MAV_MODE_FLAG_DECODE_POSITION_HIL">
+                     <description>Third bit:  00100000</description>
+                </entry>
+                <entry value="16" name="MAV_MODE_FLAG_DECODE_POSITION_STABILIZE">
+                     <description>Fourth bit: 00010000</description>
+                </entry>
+                <entry value="8" name="MAV_MODE_FLAG_DECODE_POSITION_GUIDED">
+                     <description>Fifth bit:  00001000</description>
+                </entry>
+                <entry value="4" name="MAV_MODE_FLAG_DECODE_POSITION_AUTO">
+                     <description>Sixt bit:   00000100</description>
+                </entry>
+                <entry value="2" name="MAV_MODE_FLAG_DECODE_POSITION_TEST">
+                     <description>Seventh bit: 00000010</description>
+                </entry>
+                <entry value="1" name="MAV_MODE_FLAG_DECODE_POSITION_CUSTOM_MODE">
+                     <description>Eighth bit: 00000001</description>
+                </entry>
+          </enum>
+ 
+          <enum name="MAV_MODE">
+               <description>These defines are predefined OR-combined mode flags. There is no need to use values from this enum, but it
+               simplifies the use of the mode flags. Note that manual input is enabled in all modes as a safety override.</description>
+               <entry value="0" name="MAV_MODE_PREFLIGHT">
+                    <description>System is not ready to fly, booting, calibrating, etc. No flag is set.</description>
+               </entry>
+               <entry value="80" name="MAV_MODE_STABILIZE_DISARMED">
+                    <description>System is allowed to be active, under assisted RC control.</description>
+               </entry>
+               <entry value="208" name="MAV_MODE_STABILIZE_ARMED">
+                    <description>System is allowed to be active, under assisted RC control.</description>
+               </entry>
+               <entry value="64" name="MAV_MODE_MANUAL_DISARMED">
+                    <description>System is allowed to be active, under manual (RC) control, no stabilization</description>
+               </entry>
+               <entry value="192" name="MAV_MODE_MANUAL_ARMED">
+                    <description>System is allowed to be active, under manual (RC) control, no stabilization</description>
+               </entry>
+               <entry value="88" name="MAV_MODE_GUIDED_DISARMED">
+                    <description>System is allowed to be active, under autonomous control, manual setpoint</description>
+               </entry>
+               <entry value="216" name="MAV_MODE_GUIDED_ARMED">
+                    <description>System is allowed to be active, under autonomous control, manual setpoint</description>
+               </entry>
+               <entry value="92" name="MAV_MODE_AUTO_DISARMED">
+                    <description>System is allowed to be active, under autonomous control and navigation (the trajectory is decided onboard and not pre-programmed by MISSIONs)</description>
+               </entry>
+               <entry value="220" name="MAV_MODE_AUTO_ARMED">
+                    <description>System is allowed to be active, under autonomous control and navigation (the trajectory is decided onboard and not pre-programmed by MISSIONs)</description>
+               </entry>
+               <entry value="66" name="MAV_MODE_TEST_DISARMED">
+                    <description>UNDEFINED mode. This solely depends on the autopilot - use with caution, intended for developers only.</description>
+               </entry>
+               <entry value="194" name="MAV_MODE_TEST_ARMED">
+                    <description>UNDEFINED mode. This solely depends on the autopilot - use with caution, intended for developers only.</description>
+               </entry>
+          </enum>
+          <enum name="MAV_STATE">
+               <entry value="0" name="MAV_STATE_UNINIT">
+                    <description>Uninitialized system, state is unknown.</description>
+               </entry>
+               <entry name="MAV_STATE_BOOT">
+                    <description>System is booting up.</description>
+               </entry>
+               <entry name="MAV_STATE_CALIBRATING">
+                    <description>System is calibrating and not flight-ready.</description>
+               </entry>
+               <entry name="MAV_STATE_STANDBY">
+                    <description>System is grounded and on standby. It can be launched any time.</description>
+               </entry>
+               <entry name="MAV_STATE_ACTIVE">
+                    <description>System is active and might be already airborne. Motors are engaged.</description>
+               </entry>
+               <entry name="MAV_STATE_CRITICAL">
+                    <description>System is in a non-normal flight mode. It can however still navigate.</description>
+               </entry>
+               <entry name="MAV_STATE_EMERGENCY">
+                    <description>System is in a non-normal flight mode. It lost control over parts or over the whole airframe. It is in mayday and going down.</description>
+               </entry>
+               <entry name="MAV_STATE_POWEROFF">
+                    <description>System just initialized its power-down sequence, will shut down now.</description>
+               </entry>
+          </enum>
+          <enum name="MAV_COMPONENT">
+               <entry value="0" name="MAV_COMP_ID_ALL">
+                    <description/>
+               </entry>
+               <entry value="220" name="MAV_COMP_ID_GPS">
+                    <description/>
+               </entry>
+               <entry value="190" name="MAV_COMP_ID_MISSIONPLANNER">
+                    <description/>
+               </entry>
+               <entry value="195" name="MAV_COMP_ID_PATHPLANNER">
+                    <description/>
+               </entry>
+               <entry value="180" name="MAV_COMP_ID_MAPPER">
+                    <description/>
+               </entry>
+               <entry value="100" name="MAV_COMP_ID_CAMERA">
+                    <description/>
+               </entry>
+               <entry value="200" name="MAV_COMP_ID_IMU">
+                    <description/>
+               </entry>
+               <entry value="201" name="MAV_COMP_ID_IMU_2">
+                    <description/>
+               </entry>
+               <entry value="202" name="MAV_COMP_ID_IMU_3">
+                    <description/>
+               </entry>
+               <entry value="240" name="MAV_COMP_ID_UDP_BRIDGE">
+                    <description/>
+               </entry>
+               <entry value="241" name="MAV_COMP_ID_UART_BRIDGE">
+                    <description/>
+               </entry>
+               <entry value="250" name="MAV_COMP_ID_SYSTEM_CONTROL">
+                    <description/>
+               </entry>
+               <entry value="140" name="MAV_COMP_ID_SERVO1">
+                    <description/>
+               </entry>
+               <entry value="141" name="MAV_COMP_ID_SERVO2">
+                    <description/>
+               </entry>
+               <entry value="142" name="MAV_COMP_ID_SERVO3">
+                    <description/>
+               </entry>
+               <entry value="143" name="MAV_COMP_ID_SERVO4">
+                    <description/>
+               </entry>
+               <entry value="144" name="MAV_COMP_ID_SERVO5">
+                    <description/>
+               </entry>
+               <entry value="145" name="MAV_COMP_ID_SERVO6">
+                    <description/>
+               </entry>
+               <entry value="146" name="MAV_COMP_ID_SERVO7">
+                    <description/>
+               </entry>
+               <entry value="147" name="MAV_COMP_ID_SERVO8">
+                    <description/>
+               </entry>
+               <entry value="148" name="MAV_COMP_ID_SERVO9">
+                    <description/>
+               </entry>
+               <entry value="149" name="MAV_COMP_ID_SERVO10">
+                    <description/>
+               </entry>
+               <entry value="150" name="MAV_COMP_ID_SERVO11">
+                    <description/>
+               </entry>
+               <entry value="151" name="MAV_COMP_ID_SERVO12">
+                    <description/>
+               </entry>
+               <entry value="152" name="MAV_COMP_ID_SERVO13">
+                    <description/>
+               </entry>
+               <entry value="153" name="MAV_COMP_ID_SERVO14">
+                    <description/>
+               </entry>
+               <entry value="154" name="MAV_COMP_ID_GIMBAL">
+                    <description/>
+               </entry>
+          </enum>
+
+          <enum name="MAV_PARAM_TYPE">
+               <description>Specifies the datatype of a MAVLink parameter.</description>
+               <entry value="1" name="MAV_PARAM_TYPE_UINT8">
+                    <description>8-bit unsigned integer</description>
+               </entry>
+               <entry value="2" name="MAV_PARAM_TYPE_INT8">
+                    <description>8-bit signed integer</description>
+               </entry>
+               <entry value="3" name="MAV_PARAM_TYPE_UINT16">
+                    <description>16-bit unsigned integer</description>
+               </entry>
+               <entry value="4" name="MAV_PARAM_TYPE_INT16">
+                    <description>16-bit signed integer</description>
+               </entry>
+               <entry value="5" name="MAV_PARAM_TYPE_UINT32">
+                    <description>32-bit unsigned integer</description>
+               </entry>
+               <entry value="6" name="MAV_PARAM_TYPE_INT32">
+                    <description>32-bit signed integer</description>
+               </entry>
+               <entry value="7" name="MAV_PARAM_TYPE_UINT64">
+                    <description>64-bit unsigned integer</description>
+               </entry>
+               <entry value="8" name="MAV_PARAM_TYPE_INT64">
+                    <description>64-bit signed integer</description>
+               </entry>
+               <entry value="9" name="MAV_PARAM_TYPE_REAL32">
+                    <description>32-bit floating-point</description>
+               </entry>
+               <entry value="10" name="MAV_PARAM_TYPE_REAL64">
+                    <description>64-bit floating-point</description>
+               </entry>
+          </enum>
+ 
+          <enum name="MAV_PROTOCOL_CAPABILITY">
+              <description>Bitmask of (optional) autopilot capabilities (64 bit). If a bit is set, the autopilot supports this capability.</description>
+              <entry value="1" name="MAV_PROTOCOL_CAPABILITY_MISSION_FLOAT">
+                  <description>Autopilot supports MISSION float message type.</description>
+              </entry>
+              <entry value="2" name="MAV_PROTOCOL_CAPABILITY_PARAM_FLOAT">
+                  <description>Autopilot supports the new param float message type.</description>
+              </entry>
+              <entry value="4" name="MAV_PROTOCOL_CAPABILITY_MISSION_INT">
+                  <description>Autopilot supports MISSION_INT scaled integer message type.</description>
+              </entry>
+              <entry value="8" name="MAV_PROTOCOL_CAPABILITY_COMMAND_INT">
+                  <description>Autopilot supports COMMAND_INT scaled integer message type.</description>
+              </entry>
+              <entry value="16" name="MAV_PROTOCOL_CAPABILITY_PARAM_UNION">
+                  <description>Autopilot supports the new param union message type.</description>
+              </entry>
+              <entry value="32" name="MAV_PROTOCOL_CAPABILITY_FTP">
+                  <description>Autopilot supports the new param union message type.</description>
+              </entry>
+              <entry value="64" name="MAV_PROTOCOL_CAPABILITY_SET_ATTITUDE_TARGET">
+                  <description>Autopilot supports commanding attitude offboard.</description>
+              </entry>
+              <entry value="128" name="MAV_PROTOCOL_CAPABILITY_SET_POSITION_TARGET_LOCAL_NED">
+                  <description>Autopilot supports commanding position and velocity targets in local NED frame.</description>
+              </entry>
+              <entry value="256" name="MAV_PROTOCOL_CAPABILITY_SET_POSITION_TARGET_GLOBAL_INT">
+                  <description>Autopilot supports commanding position and velocity targets in global scaled integers.</description>
+              </entry>
+              <entry value="512" name="MAV_PROTOCOL_CAPABILITY_TERRAIN">
+                  <description>Autopilot supports terrain protocol / data handling.</description>
+              </entry>
+              <entry value="1024" name="MAV_PROTOCOL_CAPABILITY_SET_ACTUATOR_TARGET">
+                  <description>Autopilot supports direct actuator control.</description>
+              </entry>
+              <entry value="2048" name="MAV_PROTOCOL_CAPABILITY_FLIGHT_TERMINATION">
+                  <description>Autopilot supports the flight termination command.</description>
+              </entry>
+              <entry value="4096" name="MAV_PROTOCOL_CAPABILITY_COMPASS_CALIBRATION">
+                  <description>Autopilot supports onboard compass calibration.</description>
+              </entry>
+          </enum>
+
+          <enum name="MOTOR_CONTROL_MODE">
+               <description>Motor control modes</description>
+               <entry value="0" name="MOTOR_OFF"/>
+               <entry value="1" name="MOTOR_SLEEP"/>
+               <entry value="2" name="MOTOR_RESET"/>
+               <entry value="3" name="MOTOR_AMPLITUDE_CONTROL"/>
+               <entry value="4" name="MOTOR_CURRENT_CONTROL"/>
+               <entry value="5" name="MOTOR_TORQUE_CONTROL"/>
+               <entry value="6" name="MOTOR_VELOCITY_CONTROL"/>
+               <entry value="7" name="MOTOR_POSITION_CONTROL"/>
+               <entry value="8" name="MOTOR_PASSIVE_BRAKE"/>
+               <entry value="9" name="MOTOR_PASSIVE_FREEWHEEL"/>
+               
+          </enum>
+          <enum name="MOTOR_COMMUTATION_MODE">
+               <description>Motor commutation modes for brushless controllers</description>
+               <entry value="0" name="MOTOR_TRAPEZOIDAL_HALL"/>
+               <entry value="1" name="MOTOR_FOC_HALL"/>
+               <entry value="2" name="MOTOR_TRAPEZ_SENSORLESS"/>
+               <entry value="3" name="MOTOR_FOC_SENSORLESS"/>
+               <entry value="4" name="MOTOR_TRAPEZ_SL_AUTO"/>
+               <entry value="5" name="MOTOR_FOC_SL_AUTO"/>
+          </enum>
+          <enum name="MOTOR_ERROR_STATE">
+               <description>Status flags of a motor controller (8 bits)</description>
+               <entry value=  "1" name="MOTOR_RUNNING"          ><description>Motor running nominally</description> </entry>
+               <entry value=  "2" name="MOTOR_CURRENT_LIMITED"  ><description>Current limiter active</description>  </entry>
+               <entry value=  "4" name="MOTOR_OVERLOAD"         ><description>Overload condition</description>      </entry>
+               <entry value=  "8" name="MOTOR_STALLED"          ><description>Motor stalled</description>           </entry>
+               <entry value= "16" name="MOTOR_SYNC_LOSS"        ><description>Commutation lost synchronisation</description>   </entry>
+               <entry value= "32" name="MOTOR_SHORT_CIRCUIT"    ><description>Short circuit in output amplifier</description>  </entry>
+               <entry value= "64" name="MOTOR_WATCHDOG_TIMEOUT" ><description>Motor has not received commands within timeout period</description></entry>
+               <entry value="128" name="MOTOR_REACHED_SETPOINT" ><description>Motor is tracking the given setpoint</description></entry>
+          </enum>
+
+     </enums>
+     <messages>
+          <message id="0" name="HEARTBEAT">
+               <description>The heartbeat message shows that a system is present and responding. The type of the MAV and Autopilot hardware allow the receiving system to treat further messages from this system appropriate (e.g. by laying out the user interface based on the autopilot).</description>
+               <field type="uint8_t" name="type">Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)</field>
+               <field type="uint8_t" name="autopilot">Autopilot type / class. defined in MAV_AUTOPILOT ENUM</field>
+               <field type="uint8_t" name="base_mode">System mode bitfield, see MAV_MODE_FLAG ENUM in mavlink/include/mavlink_types.h</field>
+               <field type="uint32_t" name="custom_mode">A bitfield for use for autopilot-specific flags.</field>
+               <field type="uint8_t" name="system_status">System status flag, see MAV_STATE ENUM</field>
+               <field type="uint8_t_mavlink_version" name="mavlink_version">MAVLink version, not writable by user, gets added by protocol because of magic data type: uint8_t_mavlink_version</field>
+          </message>
+
+          <message id="2" name="SYSTEM_TIME">
+               <description>The system time is the time of the master clock, typically the computer clock of the main onboard computer.</description>
+               <field type="uint64_t" name="time_unix_usec">Timestamp of the master clock in microseconds since UNIX epoch.</field>
+               <field type="uint32_t" name="time_boot_ms">Timestamp of the component clock since boot time in milliseconds.</field>
+          </message>
+          <!-- FIXME to be removed / merged with SYSTEM_TIME -->
+          <message id="4" name="PING">
+               <description>A ping message either requesting or responding to a ping. This allows to measure the system latencies, including serial port, radio modem and UDP connections.</description>
+               <field type="uint64_t" name="time_usec">Unix timestamp in microseconds or since system boot if smaller than MAVLink epoch (1.1.2009)</field>
+               <field type="uint32_t" name="seq">PING sequence</field>
+               <field type="uint8_t" name="target_system">0: request ping from all receiving systems, if greater than 0: message is a ping response and number is the system id of the requesting system</field>
+               <field type="uint8_t" name="target_component">0: request ping from all receiving components, if greater than 0: message is a ping response and number is the system id of the requesting system</field>
+          </message>
+ 
+          <message id="7" name="AUTH_KEY">
+               <description>Emit an encrypted signature / key identifying this system. PLEASE NOTE: This protocol has been kept simple, so transmitting the key requires an encrypted channel for true safety.</description>
+               <field type="char[32]" name="key">key</field>
+          </message>
+          <message id="11" name="SET_MODE">
+               <description>Set the system mode, as defined by enum MAV_MODE. There is no target component id as the mode is by definition for the overall aircraft, not only for one component.</description>
+               <field type="uint8_t" name="target_system">The system setting the mode</field>
+               <field type="uint8_t" name="base_mode" enum="MAV_MODE">The new base mode</field>
+               <field type="uint32_t" name="custom_mode">The new autopilot-specific mode. This field can be ignored by an autopilot.</field>
+          </message>
+          <!-- reserved for PARAM_VALUE_UNION -->
+          <message id="20" name="PARAM_REQUEST_READ">
+               <description>Request to read the onboard parameter with the param_id string id. Onboard parameters are stored as key[const char*] -> value[float]. This allows to send a parameter to any other component (such as the GCS) without the need of previous knowledge of possible parameter names. Thus the same GCS can store different parameters for different autopilots. See also http://qgroundcontrol.org/parameter_interface for a full documentation of QGroundControl and IMU code.</description>
+               <field type="uint8_t" name="target_system">System ID</field>
+               <field type="uint8_t" name="target_component">Component ID</field>
+               <field type="char[16]" name="param_id">Onboard parameter id, terminated by NULL if the length is less than 16 human-readable chars and WITHOUT null termination (NULL) byte if the length is exactly 16 chars - applications have to provide 16+1 bytes storage if the ID is stored as string</field>
+               <field type="int16_t" name="param_index">Parameter index. Send -1 to use the param ID field as identifier (else the param id will be ignored)</field>
+          </message>
+          <message id="21" name="PARAM_REQUEST_LIST">
+               <description>Request all parameters of this component. After his request, all parameters are emitted.</description>
+               <field type="uint8_t" name="target_system">System ID</field>
+               <field type="uint8_t" name="target_component">Component ID</field>
+          </message>
+          <message id="22" name="PARAM_VALUE">
+               <description>Emit the value of a onboard parameter. The inclusion of param_count and param_index in the message allows the recipient to keep track of received parameters and allows him to re-request missing parameters after a loss or timeout.</description>
+               <field type="char[16]" name="param_id">Onboard parameter id, terminated by NULL if the length is less than 16 human-readable chars and WITHOUT null termination (NULL) byte if the length is exactly 16 chars - applications have to provide 16+1 bytes storage if the ID is stored as string</field>
+               <field type="float" name="param_value">Onboard parameter value</field>
+               <field type="uint8_t" name="param_type" enum="MAV_PARAM_TYPE">Onboard parameter type: see the MAV_PARAM_TYPE enum for supported data types.</field>
+               <field type="uint16_t" name="param_count">Total number of onboard parameters</field>
+               <field type="uint16_t" name="param_index">Index of this onboard parameter</field>
+          </message>
+          <message id="23" name="PARAM_SET">
+               <description>Set a parameter value TEMPORARILY to RAM. It will be reset to default on system reboot. Send the ACTION MAV_ACTION_STORAGE_WRITE to PERMANENTLY write the RAM contents to EEPROM. IMPORTANT: The receiving component should acknowledge the new parameter value by sending a param_value message to all communication partners. This will also ensure that multiple GCS all have an up-to-date list of all parameters. If the sending GCS did not receive a PARAM_VALUE message within its timeout time, it should re-send the PARAM_SET message.</description>
+               <field type="uint8_t" name="target_system">System ID</field>
+               <field type="uint8_t" name="target_component">Component ID</field>
+               <field type="char[16]" name="param_id">Onboard parameter id, terminated by NULL if the length is less than 16 human-readable chars and WITHOUT null termination (NULL) byte if the length is exactly 16 chars - applications have to provide 16+1 bytes storage if the ID is stored as string</field>
+               <field type="float" name="param_value">Onboard parameter value</field>
+               <field type="uint8_t" name="param_type" enum="MAV_PARAM_TYPE">Onboard parameter type: see the MAV_PARAM_TYPE enum for supported data types.</field>
+          </message>
+          <message id="66" name="REQUEST_DATA_STREAM">
+               <description>Adjust message rate.</description>
+               <field type="uint8_t" name="target_system">The target requested to send the message stream.</field>
+               <field type="uint8_t" name="target_component">The target requested to send the message stream.</field>
+               <field type="uint8_t" name="req_stream_id">The ID of the requested data stream</field>
+               <field type="uint16_t" name="req_message_rate">The requested message rate</field>
+               <field type="uint8_t" name="start_stop">1 to start sending, 0 to stop sending.</field>
+          </message>
+          <message id="75" name="COMMAND_INT">
+              <description>Message encoding a command with parameters as scaled integers. Scaling depends on the actual command value.</description>
+              <field type="uint8_t" name="target_system">System ID</field>
+              <field type="uint8_t" name="target_component">Component ID</field>
+              <field type="uint8_t" name="frame">The coordinate system of the COMMAND. see MAV_FRAME in mavlink_types.h</field>
+              <field type="uint16_t" name="command">The scheduled action for the mission item. see MAV_CMD in common.xml MAVLink specs</field>
+              <field type="uint8_t" name="current">false:0, true:1</field>
+              <field type="uint8_t" name="autocontinue">autocontinue to next wp</field>
+              <field type="float" name="param1">PARAM1, see MAV_CMD enum</field>
+              <field type="float" name="param2">PARAM2, see MAV_CMD enum</field>
+              <field type="float" name="param3">PARAM3, see MAV_CMD enum</field>
+              <field type="float" name="param4">PARAM4, see MAV_CMD enum</field>
+              <field type="int32_t" name="x">PARAM5 / local: x position in meters * 1e4, global: latitude in degrees * 10^7</field>
+              <field type="int32_t" name="y">PARAM6 / local: y position in meters * 1e4, global: longitude in degrees * 10^7</field>
+              <field type="float" name="z">PARAM7 / z position: global: altitude in meters (relative or absolute, depending on frame.</field>
+          </message>
+          <message id="76" name="COMMAND_LONG">
+               <description>Send a command with up to seven parameters to the MAV</description>
+               <field type="uint8_t" name="target_system">System which should execute the command</field>
+               <field type="uint8_t" name="target_component">Component which should execute the command, 0 for all components</field>
+               <field type="uint16_t" name="command" enum="MAV_CMD">Command ID, as defined by MAV_CMD enum.</field>
+               <field type="uint8_t" name="confirmation">0: First transmission of this command. 1-255: Confirmation transmissions (e.g. for kill command)</field>
+               <field type="float" name="param1">Parameter 1, as defined by MAV_CMD enum.</field>
+               <field type="float" name="param2">Parameter 2, as defined by MAV_CMD enum.</field>
+               <field type="float" name="param3">Parameter 3, as defined by MAV_CMD enum.</field>
+               <field type="float" name="param4">Parameter 4, as defined by MAV_CMD enum.</field>
+               <field type="float" name="param5">Parameter 5, as defined by MAV_CMD enum.</field>
+               <field type="float" name="param6">Parameter 6, as defined by MAV_CMD enum.</field>
+               <field type="float" name="param7">Parameter 7, as defined by MAV_CMD enum.</field>
+          </message>
+          <message id="77" name="COMMAND_ACK">
+               <description>Report status of a command. Includes feedback wether the command was executed.</description>
+               <field type="uint16_t" name="command" enum="MAV_CMD">Command ID, as defined by MAV_CMD enum.</field>
+               <field type="uint8_t" name="result">See MAV_RESULT enum</field>
+          </message>
+
+         <message id="117" name="LOG_REQUEST_LIST">
+          <description>Request a list of available logs. On some systems calling this may stop on-board logging until LOG_REQUEST_END is called.</description>
+          <field type="uint8_t" name="target_system">System ID</field>
+          <field type="uint8_t" name="target_component">Component ID</field>
+          <field type="uint16_t" name="start">First log id (0 for first available)</field>
+          <field type="uint16_t" name="end">Last log id (0xffff for last available)</field>
+         </message>
+         <message id="118" name="LOG_ENTRY">
+           <description>Reply to LOG_REQUEST_LIST</description>
+           <field type="uint16_t" name="id">Log id</field>
+           <field type="uint16_t" name="num_logs">Total number of logs</field>
+           <field type="uint16_t" name="last_log_num">High log number</field>
+           <field type="uint32_t" name="time_utc">UTC timestamp of log in seconds since 1970, or 0 if not available</field>
+           <field type="uint32_t" name="size">Size of the log (may be approximate) in bytes</field>
+         </message>
+         <message id="119" name="LOG_REQUEST_DATA">
+           <description>Request a chunk of a log</description>
+           <field type="uint8_t" name="target_system">System ID</field>
+           <field type="uint8_t" name="target_component">Component ID</field>
+           <field type="uint16_t" name="id">Log id (from LOG_ENTRY reply)</field>
+           <field type="uint32_t" name="ofs">Offset into the log</field>
+           <field type="uint32_t" name="count">Number of bytes</field>
+         </message>
+         <message id="120" name="LOG_DATA">
+           <description>Reply to LOG_REQUEST_DATA</description>
+           <field type="uint16_t" name="id">Log id (from LOG_ENTRY reply)</field>
+           <field type="uint32_t" name="ofs">Offset into the log</field>
+           <field type="uint8_t" name="count">Number of bytes (zero for end of log)</field>
+           <field type="uint8_t[90]" name="data">log data</field>
+         </message>
+         <message id="121" name="LOG_ERASE">
+           <description>Erase all logs</description>
+           <field type="uint8_t" name="target_system">System ID</field>
+           <field type="uint8_t" name="target_component">Component ID</field>
+         </message>
+         <message id="122" name="LOG_REQUEST_END">
+           <description>Stop log transfer and resume normal logging</description>
+           <field type="uint8_t" name="target_system">System ID</field>
+           <field type="uint8_t" name="target_component">Component ID</field>
+         </message>
+
+    <message id="250" name="DEBUG_VECT">
+      <description>To debug something using a named 3D vector.</description>
+      <field type="char[10]" name="name">Name</field>
+      <field type="uint64_t" name="time_usec" units="us">Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude the number.</field>
+      <field type="float" name="x">x</field>
+      <field type="float" name="y">y</field>
+      <field type="float" name="z">z</field>
+    </message>
+          <message id="251" name="NAMED_VALUE_FLOAT">
+               <description>Send a key-value pair as float. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output.</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="char[10]" name="name">Name of the debug variable</field>
+               <field type="float" name="value">Floating point value</field>
+          </message>
+          <message id="252" name="NAMED_VALUE_INT">
+               <description>Send a key-value pair as integer. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output.</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="char[10]" name="name">Name of the debug variable</field>
+               <field type="int32_t" name="value">Signed integer value</field>
+          </message>
+          <message id="253" name="STATUSTEXT">
+               <description>Status text message. These messages are printed in yellow in the COMM console of QGroundControl. WARNING: They consume quite some bandwidth, so use only for important status and error messages. If implemented wisely, these messages are buffered on the MCU and sent only at a limited rate (e.g. 10 Hz).</description>
+               <field type="uint8_t" name="severity" enum="MAV_SEVERITY">Severity of status. Relies on the definitions within RFC-5424. See enum MAV_SEVERITY.</field>
+               <field type="char[50]" name="text">Status text message, without null termination character</field>
+          </message>
+          <message id="254" name="DEBUG">
+               <description>Send a debug value. The index is used to discriminate between values. These values show up in the plot of QGroundControl as DEBUG N.</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="uint8_t" name="ind">index of debug variable</field>
+               <field type="float" name="value">DEBUG value</field>
+          </message>
+    
+
+          <message id="150" name="MOTOR_COMMAND">
+               <description>Command to configure and control motor controllers</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+                <field type="uint8_t" name="target_system">System ID</field>
+               <field type="uint8_t" name="target_component">Component ID</field>
+               <field type="uint8_t" name="control_mode">set the motor control mode (MOTOR_CONTROL_MODE enum)</field>
+                <field type="float" name="setpoint">Target setpoint. Amplitude: -1.0 - 1.0, Current: Ampere, Torque: Nm, Velocity: RPM, Position: Degrees/mm</field>
+                <field type="float" name="current_limit">Current limit in Ampere</field>
+          </message>
+
+          <message id="151" name="MOTOR_STATE">
+               <description>Motor state message containing measurements and state of motor controllers</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="uint8_t" name="control_mode">report motor control mode (MOTOR_CONTROL_MODE enum)</field> 
+               <field type="uint8_t" name="motor_error_state">motor state flags: </field> 
+               <field type="float" name="speed">motor speed in rpm (sign indicates direction)</field>
+               <field type="float" name="supply_voltage">supply voltage in Volt</field>
+               <field type="float" name="current">motor current in ampere</field>
+               <field type="float" name="power">electrical power delivered by motor controller</field>
+               <field type="float" name="torque">motor torque estimate</field>
+               <field type="float" name="position">actuator position in degrees or millimeters</field>
+               <field type="float" name="temperature">Temperature in degrees celsius</field>
+          </message>
+
+
+          <message id="180" name="CAN_PACKET">
+               <description>Encapsulation of individual CAN packets to tunnel through other streams</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="uint8_t" name="bus_id">identifier of the can bus</field>
+               <field type="uint32_t" name="can_id">CAN arbitration field (11 or 29 bits)</field>
+               <field type="uint8_t" name="frame_type">0: standard frame; 1: remote frame; 2: error frame, 3: overload frame; Extended: 16: standard frame; 17: remote frame; 18: error frame, 19: overload frame</field>
+               <field type="uint8_t" name="dlc">data length</field>
+               <field type="uint8_t[8]" name="values">raw sample values</field>
+          </message>
+
+          <message id="181" name="RAW_DATA_STREAM_8">
+               <description>Raw data stream (8-bit) or multi-packet arrays</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="uint8_t" name="stream_id">Stream ID</field>
+               <field type="uint8_t" name="packets_per_block">Number of packets per block (0 if continuous stream)</field>
+               <field type="uint8_t" name="packet_id">packet counter</field>
+               <field type="uint8_t" name="sample_count">Number of valid samples in this packet</field>
+               <field type="uint8_t[64]" name="values">raw sample values</field>
+          </message>
+
+          <message id="182" name="RAW_DATA_STREAM_16">
+               <description>Raw data stream (16-bit) or multi-packet arrays</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="uint8_t" name="stream_id">Stream ID</field>
+               <field type="uint8_t" name="packets_per_block">Number of packets per block (0 if continuous stream)</field>
+               <field type="uint8_t" name="packet_id">packet counter</field>
+               <field type="uint8_t" name="sample_count">Number of valid samples in this packet</field>
+               <field type="int16_t[64]" name="values">raw sample values</field>
+          </message>
+          <message id="183" name="RAW_DATA_STREAM_FLOAT">
+               <description>Raw data stream (32-bit float) or multi-packet arrays</description>
+               <field type="uint32_t" name="time_boot_ms">Timestamp (milliseconds since system boot)</field>
+               <field type="uint8_t" name="stream_id">Stream ID</field>
+               <field type="uint8_t" name="packets_per_block">Number of packets per block (0 if continuous stream)</field>
+               <field type="uint8_t" name="packet_id">packet counter</field>
+               <field type="uint8_t" name="sample_count">Number of valid samples in this packet</field>
+               <field type="float[32]" name="values">raw sample values</field>
+          </message>
+
+          <message id="200" name="BOOTLOADER_CMD">
+               <description>Additional information on existing messages and commands</description>
+               <field type="uint8_t" name="target_system">System which should execute the command</field>
+               <field type="uint8_t" name="target_component">Component which should execute the command, 0 for all components</field>
+               <field type="uint32_t" name="session_message_counter">unique session handle negotiated when entering boot mode. Incremented by master with each message. Slave returns the last received and processed message as acknowledgement.</field>
+               <field type="uint8_t" name="command">Command ID, as defined by BOOTLOADER_CMD enum.</field>
+               <field type="uint8_t" name="error_id">Error code in response to previous command or transfer as defined by BOOTLOADER_ERROR enum.</field>
+               <field type="uint32_t" name="param_address">Command parameter 1 or memory address depending on command</field>
+               <field type="uint32_t" name="param_length"> Command parameter 2 or transfer length depending on command</field>
+          </message>
+
+          <message id="201" name="BOOTLOADER_DATA">
+               <description>Bootloader memory transfer (reading or writing) for flash or RAM transfers.</description>
+               <field type="uint8_t" name="target_system">System which should execute the command</field>
+               <field type="uint8_t" name="target_component">Component which should execute the command, 0 for all components</field>
+               <field type="uint32_t" name="session_message_counter">unique session handle negotiated when entering boot mode. Incremented by master with each message. Slave returns the last received and processed message as acknowledgement.</field>
+               <field type="uint8_t" name="command">Command ID, as defined by BOOTLOADER_CMD enum.</field>
+               <field type="uint32_t" name="base_address">32bit memory base address to write to / read from. </field>
+               <field type="uint8_t" name="data_length">length of data block (number of valid bytes in data)</field>
+               <field type="uint8_t[32]" name="data">raw data for memory transfer</field>
+
+          </message>
+
+          <message id="202" name="SCHEDULER_STATS">
+               <description>Scheduler statistics per task (execution time, delay, etc.)</description>
+               <field type="uint8_t" name="task_id">ID of this task</field>
+               <field type="uint8_t" name="run_mode">Run mode of task (0=never, 1=once, 2=regular)</field>	
+               <field type="uint32_t" name="period">Execution time</field>
+               <field type="uint32_t" name="execution_time">Execution time</field>
+               <field type="uint32_t" name="delay_avg">avg. scheduling delay</field>
+               <field type="uint32_t" name="delay_max">max. scheduling delay</field>
+               <field type="uint32_t" name="delay_var">delay variation</field>
+               <field type="uint16_t" name="rt_violations">Realtime violations (task hasn't been run within period)</field>
+
+          </message>
+      </messages>
+
+
+</mavlink>

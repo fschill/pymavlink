@@ -17,7 +17,7 @@ from pymavlink import mavexpression
 # at all we avoid throwing an exception if it isn't installed
 try:
     import json
-    from pymavlink.dialects.v10 import auv
+    from pymavlink.dialects.v10 import ardupilotmega
 except Exception:
     pass
 
@@ -40,7 +40,7 @@ global_link_id = 0
 
 # Use a globally-set MAVLink dialect if one has been specified as an environment variable.
 if not 'MAVLINK_DIALECT' in os.environ:
-    os.environ['MAVLINK_DIALECT'] = 'auv'
+    os.environ['MAVLINK_DIALECT'] = 'common'
 
 def mavlink10():
     '''return True if using MAVLink 1.0 or later'''
@@ -1778,7 +1778,7 @@ def auto_detect_serial_win32(preferred_list=['*']):
 def auto_detect_serial_unix(preferred_list=['*']):
     '''try to auto-detect serial ports on unix'''
     import glob
-    glist =  glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*') + glob.glob('/dev/tty.usb*') + glob.glob('/dev/serial/by-id/*') + glob.glob('/dev/ttyS*')
+    glist = glob.glob('/dev/ttyS*') + glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*') + glob.glob('/dev/serial/by-id/*')
     ret = []
     others = []
     # try preferred ones first

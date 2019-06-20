@@ -807,7 +807,7 @@ class MAVLink(object):
                 for i in range(0, len(tlist)):
                     if type.fieldtypes[i] == 'char':
                         if sys.version_info.major >= 3:
-                            tlist[i] = tlist[i].decode('utf-8')
+                            tlist[i] = tlist[i].decode('ISO-8859-1')
                         tlist[i] = str(MAVString(tlist[i]))
                 t = tuple(tlist)
                 # construct the message object
