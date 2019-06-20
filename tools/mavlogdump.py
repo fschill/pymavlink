@@ -8,10 +8,12 @@ header. The timestamp is in microseconds since 1970 (unix epoch)
 '''
 from __future__ import print_function
 
+import array
 import fnmatch
 import json
 import os
 import struct
+import sys
 import time
 
 try:
@@ -43,12 +45,19 @@ parser.add_argument("--show-types", action='store_true', help="Shows all message
 parser.add_argument("--source-system", type=int, default=None, help="filter by source system ID")
 parser.add_argument("--source-component", type=int, default=None, help="filter by source component ID")
 parser.add_argument("--link", type=int, default=None, help="filter by comms link ID")
+parser.add_argument("--verbose", action='store_true', help="Dump messages in a much more verbose (but non-parseable) format")
+parser.add_argument("--mav10", action='store_true', help="parse as MAVLink1")
+parser.add_argument("--reduce", type=int, default=0, help="reduce streaming messages")
 parser.add_argument("log", metavar="LOG")
 args = parser.parse_args()
+
+if not args.mav10:
+    os.environ['MAVLINK20'] = '1'
 
 import inspect
 
 from pymavlink import mavutil
+
 
 
 filename = args.log
@@ -74,6 +83,32 @@ ext = os.path.splitext(filename)[1]
 isbin = ext in ['.bin', '.BIN', '.px4log']
 islog = ext in ['.log', '.LOG'] # NOTE: "islog" does not mean a tlog
 istlog = ext in ['.tlog', '.TLOG']
+
+# list of msgs to reduce in rate when --reduce is used
+reduction_msgs = ['NKF*', 'XKF*', 'IMU*', 'AHR2', 'BAR*', 'ATT', 'BAT*', 'CTUN', 'NTUN', 'GP*', 'IMT*', 'MAG*', 'PL', 'POS', 'POW*', 'RATE', 'RC*', 'RFND', 'UBX*', 'VIBE', 'NKQ*', 'MOT*', 'CTRL', 'FTS*', 'DSF', 'CST*', 'LOS*', 'UWB*']
+reduction_yes = set()
+reduction_no = set()
+reduction_count = {}
+
+def reduce_msg(mtype, reduction_ratio):
+    '''return True if this msg should be discarded by reduction'''
+    global reduction_count, reduction_msgs, reduction_yes, reduction_no
+    if mtype in reduction_no:
+        return False
+    if not mtype in reduction_yes:
+        for m in reduction_msgs:
+            if fnmatch.fnmatch(mtype, m):
+                reduction_yes.add(mtype)
+                reduction_count[mtype] = 0
+                break
+        if not mtype in reduction_yes:
+            reduction_no.add(mtype)
+            return False
+    reduction_count[mtype] += 1
+    if reduction_count[mtype] == reduction_ratio:
+        reduction_count[mtype] = 0
+        return False
+    return True
 
 if args.csv_sep == "tab":
     args.csv_sep = "\t"
@@ -105,7 +140,7 @@ if istlog and args.format == 'csv': # we know our fields from the get-go
 
     # The first line output are names for all columns
     csv_out = ["" for x in fields]
-    print(','.join(fields))
+    print(args.csv_sep.join(fields))
 
 if isbin and args.format == 'csv': # need to accumulate columns from message
     if types is None or len(types) != 1:
@@ -118,9 +153,24 @@ last_timestamp = None
 # Track types found
 available_types = set()
 
+# for DF logs pre-calculate types list
+match_types=None
+if types is not None and hasattr(mlog, 'name_to_id'):
+    for k in mlog.name_to_id.keys():
+        if match_type(k, types):
+            if nottypes is not None and match_type(k, nottypes):
+                continue
+            if match_types is None:
+                match_types = []
+            match_types.append(k)
+
+if isbin and args.format == 'csv':
+    # we need FMT messages for column headings
+    match_types.append("FMT")
+
 # Keep track of data from the current timestep. If the following timestep has the same data, it's stored in here as well. Output should therefore have entirely unique timesteps.
 while True:
-    m = mlog.recv_match(blocking=args.follow)
+    m = mlog.recv_match(blocking=args.follow, type=match_types)
     if m is None:
         # FIXME: Make sure to output the last CSV message before dropping out of this loop
         break
@@ -129,7 +179,10 @@ while True:
         if m.Name == types[0]:
             fields += m.Columns.split(',')
             csv_out = ["" for x in fields]
-            print(','.join(fields))
+            print(args.csv_sep.join(fields))
+
+    if args.reduce and reduce_msg(m.get_type(), args.reduce):
+        continue
 
     if output is not None:
         if (isbin or islog) and m.get_type() == "FMT":
@@ -173,8 +226,7 @@ while True:
         try:
             output.write(m.get_msgbuf())
         except Exception as ex:
-            print("Failed to write msg %s" % m.get_type())
-            pass
+            print("Failed to write msg %s: %s" % (m.get_type(), str(ex)))
 
     # If quiet is specified, don't display output to the terminal.
     if args.quiet:
@@ -198,6 +250,11 @@ while True:
         if args.show_source:
             meta["srcSystem"] = m.get_srcSystem()
             meta["srcComponent"] = m.get_srcComponent()
+
+        # convert any array.array (e.g. packed-16-bit fft readings) into lists:
+        for key in data.keys():
+            if type(data[key]) == array.array:
+                data[key] = list(data[key])
         outMsg = {"meta": meta, "data": data}
 
         # Now print out this object with stringified properly.
@@ -227,8 +284,14 @@ while True:
                 csv_out = [str(data[y]) if y != "timestamp" else "" for y in fields]
             else:
                 csv_out = [str(data[y.split('.')[-1]]) if y.split('.')[0] == type and y.split('.')[-1] in data else "" for y in fields]
-    # Otherwise we output in a standard Python dict-style format
+    elif args.show_types:
+        # do nothing
+        pass
+    elif args.verbose and istlog:
+        mavutil.dump_message_verbose(sys.stdout, m)
+        print("")
     else:
+        # Otherwise we output in a standard Python dict-style format
         s = "%s.%02u: %s" % (time.strftime("%Y-%m-%d %H:%M:%S",
                                            time.localtime(timestamp)),
                              int(timestamp*100.0)%100, m)
