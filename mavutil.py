@@ -40,7 +40,7 @@ global_link_id = 0
 
 # Use a globally-set MAVLink dialect if one has been specified as an environment variable.
 if not 'MAVLINK_DIALECT' in os.environ:
-    os.environ['MAVLINK_DIALECT'] = 'common'
+    os.environ['MAVLINK_DIALECT'] = 'auv'
 
 def mavlink10():
     '''return True if using MAVLink 1.0 or later'''
